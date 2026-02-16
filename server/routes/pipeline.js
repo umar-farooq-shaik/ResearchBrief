@@ -100,9 +100,10 @@ router.post('/', async (req, res) => {
             return res.json({ success: false });
         }
 
-        const sourceContext = successSources.map((s, i) =>
-            `[Source ${i + 1}] URL: ${s.url}\nTitle: ${s.title}\nContent:\n${s.scraped_content}`
-        ).join("\n\n---\n\n");
+        const sourceContext = sources.map((s, i) => {
+            if (s.status !== 'success') return null;
+            return `[Source Index: ${i}] URL: ${s.url}\nTitle: ${s.title}\nContent:\n${s.scraped_content}`;
+        }).filter(Boolean).join("\n\n---\n\n");
 
         const systemPrompt = `You are a research analyst AI. Analyze the provided web sources and generate a structured research brief.
 
@@ -126,7 +127,11 @@ You MUST respond with valid JSON matching this exact schema:
 }
 
 Rules:
-- source_indices are 0-based
+  "topic_tags": ["tag1", "tag2"]
+}
+
+Rules:
+- source_indices MUST use the "Source Index" integer provided in the context blocks (0-based)
 - Include 3-8 key findings with confidence levels
 - Identify any conflicts between sources
 - Create 3-5 verification checklist items
@@ -146,7 +151,7 @@ Rules:
             }
         });
 
-        const prompt = `Analyze these ${successSources.length} sources and generate a research brief:\n\n${sourceContext}`;
+        const prompt = `Analyze these sources and generate a research brief:\n\n${sourceContext}`;
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const rawContent = response.text();
