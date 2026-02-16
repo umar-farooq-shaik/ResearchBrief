@@ -1,0 +1,4 @@
+project_id = "rirpvfbjrzmwacqlwpfo"
+
+[functions.research-pipeline]
+verify_jwt = false
