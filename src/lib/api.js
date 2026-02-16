@@ -34,7 +34,7 @@ export async function getRecentBriefs(limit = 5) {
 }
 
 export async function runResearchPipeline(briefId) {
-  const response = await fetch("http://localhost:3000/api/research", {
+  const response = await fetch("/api/research", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
